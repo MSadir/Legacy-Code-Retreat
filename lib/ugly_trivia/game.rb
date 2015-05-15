@@ -1,3 +1,4 @@
+require 'ugly_trivia/question_store'
 module UglyTrivia
   class Game
     def  initialize
@@ -6,24 +7,9 @@ module UglyTrivia
       @purses = Array.new(6, 0)
       @in_penalty_box = Array.new(6, nil)
 
-      @pop_questions = []
-      @science_questions = []
-      @sports_questions = []
-      @rock_questions = []
-
       @current_player = 0
       @is_getting_out_of_penalty_box = false
-
-      50.times do |i|
-        @pop_questions.push "Pop Question #{i}"
-        @science_questions.push "Science Question #{i}"
-        @sports_questions.push "Sports Question #{i}"
-        @rock_questions.push create_rock_question(i)
-      end
-    end
-
-    def create_rock_question(index)
-      "Rock Question #{index}"
+      @question_store = QuestionStore.new
     end
 
     def is_playable?
@@ -64,7 +50,7 @@ module UglyTrivia
         else
           puts "#{@players[@current_player]} is not getting out of the penalty box"
           @is_getting_out_of_penalty_box = false
-          end
+        end
 
       else
 
@@ -77,13 +63,10 @@ module UglyTrivia
       end
     end
 
-  private
+    private
 
     def ask_question
-      puts @pop_questions.shift if current_category == 'Pop'
-      puts @science_questions.shift if current_category == 'Science'
-      puts @sports_questions.shift if current_category == 'Sports'
-      puts @rock_questions.shift if current_category == 'Rock'
+      puts @question_store.get_from_category(current_category)
     end
 
     def current_category
@@ -99,7 +82,7 @@ module UglyTrivia
       return 'Rock'
     end
 
-  public
+    public
 
     def was_correctly_answered
       if @in_penalty_box[@current_player]
@@ -136,16 +119,16 @@ module UglyTrivia
     end
 
     def wrong_answer
-  		puts 'Question was incorrectly answered'
-  		puts "#{@players[@current_player]} was sent to the penalty box"
-  		@in_penalty_box[@current_player] = true
+      puts 'Question was incorrectly answered'
+      puts "#{@players[@current_player]} was sent to the penalty box"
+      @in_penalty_box[@current_player] = true
 
       @current_player += 1
       @current_player = 0 if @current_player == @players.length
-  		return true
+      return true
     end
 
-  private
+    private
 
     def did_player_win
       !(@purses[@current_player] == 6)
